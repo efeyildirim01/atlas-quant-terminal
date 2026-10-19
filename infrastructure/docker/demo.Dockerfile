@@ -9,7 +9,8 @@ COPY apps/web/package.json apps/web/package-lock.json ./
 RUN npm ci
 COPY apps/web ./
 ENV ATLAS_API_URL=http://127.0.0.1:8000 NEXT_TELEMETRY_DISABLED=1
-RUN npm run build && npm prune --omit=dev
+# Dev dependencies stay: `next start` compiles next.config.ts with TypeScript at startup.
+RUN npm run build
 
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
@@ -31,6 +32,7 @@ USER atlas
 ENV ATLAS_ENV=demo \
     ATLAS_DATABASE_URL=sqlite:////srv/data/atlas.db \
     ATLAS_BACKUP_DIR=/srv/data/backups \
+    MPLCONFIGDIR=/tmp/matplotlib \
     PORT=10000
 EXPOSE 10000
 CMD ["sh", "/srv/demo-start.sh"]

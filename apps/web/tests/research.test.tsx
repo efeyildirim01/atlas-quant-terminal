@@ -28,3 +28,13 @@ describe("AI answer rendering", () => {
     expect(screen.getByText("<img src=x onerror=alert(1)>")).toBeTruthy();
   });
 });
+
+describe("API error messages", () => {
+  it("turns FastAPI validation lists into readable text", async () => {
+    const { errorDetail } = await import("@/lib/api-client");
+    expect(errorDetail([{ type: "value_error", loc: ["body", "strategy", "sma_cross"], msg: "Value error, fast must be shorter than slow" }]))
+      .toBe("strategy.sma_cross: fast must be shorter than slow");
+    expect(errorDetail("Not found")).toBe("Not found");
+    expect(errorDetail({ message: "Rate limit" })).toBe("Rate limit");
+  });
+});

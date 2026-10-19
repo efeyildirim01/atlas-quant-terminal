@@ -272,5 +272,8 @@ test("backtest: default run → change strategy and costs → out-of-sample spli
   await form.getByLabel("Fast SMA").fill("60");
   await form.getByLabel("Slow SMA").fill("20");
   await form.getByRole("button", { name: "Run backtest" }).click();
-  await expect(page.getByRole("alert").or(page.getByText(/fast must be shorter/))).toBeVisible();
+  // Validation errors are shown as readable text, not raw JSON.
+  const alert = page.getByRole("alert").filter({ hasText: "fast must be shorter than slow" });
+  await expect(alert).toBeVisible();
+  await expect(alert).not.toContainText("value_error");
 });

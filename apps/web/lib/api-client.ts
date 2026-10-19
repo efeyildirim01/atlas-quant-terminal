@@ -20,6 +20,22 @@ function csrfToken(): string | undefined {
     ?.split("=")[1];
 }
 
+/** FastAPI errors: a string, an object with `message`, or a list of validation issues ({loc, msg}). */
+export function errorDetail(detail: unknown): string {
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d: { loc?: unknown[]; msg?: string }) => {
+        const field = (d.loc ?? []).filter((x) => x !== "body" && typeof x === "string").join(".");
+        const msg = (d.msg ?? "invalid value").replace(/^Value error, /, "");
+        return field ? `${field}: ${msg}` : msg;
+      })
+      .join("; ");
+  }
+  if (detail && typeof detail === "object" && "message" in detail) return String((detail as { message: unknown }).message);
+  return JSON.stringify(detail);
+}
+
 export async function apiFetch<S extends z.ZodTypeAny>(
   path: string,
   schema: S,
@@ -44,7 +60,7 @@ export async function apiFetch<S extends z.ZodTypeAny>(
     let detail = res.statusText;
     try {
       const body = await res.json();
-      detail = typeof body.detail === "string" ? body.detail : (body.detail?.message ?? JSON.stringify(body.detail));
+      detail = errorDetail(body.detail);
     } catch {}
     throw new ApiError(res.status, detail, rid);
   }
