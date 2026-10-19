@@ -28,10 +28,10 @@ Done and exercised end to end in a browser and by Playwright.
 #### Tests (all executed on 2026-10-16)
 | Suite | Result |
 |---|---|
-| `apps/api` pytest (reference values, Hypothesis properties, no-look-ahead, quality, ingestion, auth, API, migrations, rankings, portfolio accounting & isolation, screener, reports, AI copilot & verifier, hardening, backups) | **193 passed** |
+| `apps/api` pytest (reference values, Hypothesis properties, no-look-ahead, quality, ingestion, auth, API, migrations, rankings, portfolio accounting & isolation, screener, reports, AI copilot & verifier, hardening, backtester, backups) | **211 passed** |
 | `apps/web` Vitest + Testing Library | **24 passed** (mutation-checked: 2 deliberate bugs were caught) |
 | `apps/web` TypeScript strict | clean |
-| `apps/web` Playwright (Edge, against dev servers) | **9 passed** (incl. the spec's three workflows, screener, reports/PDF and the AI assistant setup state) |
+| `apps/web` Playwright (Edge, against dev servers) | **10 passed** (incl. backtesting, the spec's three workflows, screener, reports/PDF and the AI assistant setup state) |
 
 #### Known issues
 - No real market data (licensing). Fundamentals, valuation, holdings, macro, disclosures and inflation/FX-adjusted

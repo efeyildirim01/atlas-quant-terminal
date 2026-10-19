@@ -60,6 +60,7 @@ await shot("equity", "/equities/D-BNK1");
 await shot("fund-compare", "/funds/compare?codes=D-EQF,D-PRT,D-GLD");
 await shot("portfolio", "/portfolio");
 await shot("screener", "/screener/equities");
+await shot("backtest", "/backtest", () => page.getByTestId("backtest-segments").waitFor());
 if (reportId) await shot("report", `/reports/${reportId}`);
 await shot("data-health", "/system/data-health");
 await shot("ai-research", "/ai-research");

@@ -17,6 +17,8 @@
 2. Corporate-action model → adjusted series (`adjusted_close`, `adjustment_version`) with reference tests.
 3. EVDS live verification as soon as a key is available (`pytest -m live`).
 
+Done in iteration 9: strategy backtester (`/backtest`, docs/financial-methodology/BACKTESTING.md); public GitHub repository with CI.
+
 Done in iteration 8: production hardening: Redis rate limits, real client IP, login lockout, password change, body limit, security headers/CSP, /metrics + alert rules, readiness with schema check, verified backups/restore, FastAPI/Starlette security upgrade.
 
 Done in iteration 7: AI research copilot (`/ai-research`, docs/financial-methodology/AI_COPILOT.md).

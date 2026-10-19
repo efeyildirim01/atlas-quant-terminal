@@ -13,6 +13,7 @@ const en = {
     screener: "Screener",
     portfolio: "Portfolio",
     research: "AI Research",
+    backtest: "Backtesting",
     reports: "Reports",
     dataHealth: "Data Health",
     planned: "Planned",
@@ -88,6 +89,12 @@ const en = {
     verify: "Verify", downloadPdf: "Download PDF", riskReport: "Risk report",
     signInRequired: "Sign in to generate and view research reports. Reports are private to your account.",
   },
+  backtest: {
+    intro: "Simulate a long/flat strategy on stored daily bars. Signals use the close; trades execute at the next open, with commission and slippage on every side.",
+    setup: "Setup", run: "Run backtest", running: "Running…", equity: "Equity (start = initial capital)", drawdown: "Strategy drawdown",
+    metrics: "Strategy vs buy & hold", segments: "In-sample vs out-of-sample", trades: "Trades", methodology: "Methodology",
+    oosHint: "A rule that only works before this date was probably fitted to that period.",
+  },
   research: {
     intro: "Answers are written by an AI model that can only use the platform's tools. Every figure must cite its evidence; a deterministic checker verifies each number against that evidence.",
     ask: "Ask a research question…", followUp: "Ask a follow-up…", send: "Ask", thinking: "Researching…", history: "History",
@@ -109,6 +116,7 @@ const tr: Dict = {
     screener: "Tarama",
     portfolio: "Portföy",
     research: "YZ Araştırma",
+    backtest: "Geriye Dönük Test",
     reports: "Raporlar",
     dataHealth: "Veri Sağlığı",
     planned: "Planlandı",
@@ -183,6 +191,12 @@ const tr: Dict = {
     generate: "Rapor oluştur", portfolioRisk: "Portföy riski", fundComparison: "Fon karşılaştırma", myReports: "Raporlarım",
     verify: "Doğrula", downloadPdf: "PDF indir", riskReport: "Risk raporu",
     signInRequired: "Araştırma raporu oluşturmak ve görmek için giriş yapın. Raporlar yalnızca sizin hesabınıza özeldir.",
+  },
+  backtest: {
+    intro: "Kayıtlı günlük veriler üzerinde al/çık stratejisini simüle edin. Sinyal kapanışta oluşur; işlem ertesi gün açılışta, her yönde komisyon ve kayma ile gerçekleşir.",
+    setup: "Ayarlar", run: "Testi çalıştır", running: "Çalışıyor…", equity: "Portföy değeri (başlangıç = sermaye)", drawdown: "Strateji düşüşü",
+    metrics: "Strateji ve al-tut karşılaştırması", segments: "Örneklem içi ve dışı", trades: "İşlemler", methodology: "Yöntem",
+    oosHint: "Yalnızca bu tarihten önce işe yarayan bir kural büyük olasılıkla o döneme uydurulmuştur.",
   },
   research: {
     intro: "Yanıtları yalnızca platform araçlarını kullanabilen bir yapay zekâ modeli yazar. Her rakam kanıtına atıf yapmak zorundadır; deterministik bir denetleyici her sayıyı bu kanıtla karşılaştırır.",

@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from sqlalchemy import text
 
-from app.api.v1 import auth, equities, funds, portfolios, reports, research, screener, system
+from app.api.v1 import auth, backtests, equities, funds, portfolios, reports, research, screener, system
 from app.core.config import API_ROOT, Settings, get_settings, production_issues
 from app.core.db import Database
 from app.core.metrics import Registry, build_registry
@@ -170,7 +170,8 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
             return PlainTextResponse("not found\n", status_code=404)
         return PlainTextResponse(app.state.metrics.render(), media_type="text/plain; version=0.0.4")
 
-    for r in (auth.router, portfolios.router, equities.router, funds.router, screener.router, reports.router, research.router, system.router):
+    for r in (auth.router, portfolios.router, equities.router, funds.router, screener.router, reports.router, research.router,
+              backtests.router, system.router):
         app.include_router(r, prefix="/api/v1")
     return app
 

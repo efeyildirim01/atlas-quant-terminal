@@ -54,6 +54,8 @@ Every response carries an `X-Request-ID` header. Pass one in to correlate with y
 | GET | /research/status | Whether credentials are present, model, effort, tool list |
 | POST | /research/query | Signed-in. `question`, optional `history_ids` (≤5) → answer, evidence `E#`, verification report, usage. 503 if not configured, 429 per-user limit |
 | GET | /research/history, /research/history/{id} | Owner-scoped stored queries |
+| POST | /backtests | `symbol`, typed `strategy`, window, `out_of_sample_start`, costs (bps), `rf` → equity, drawdown, trades, metrics vs buy-and-hold, segments |
+| GET | /backtests/strategies | Strategy catalogue with parameter defaults and bounds |
 | GET | /market/overview | Index, breadth, sectors, movers; macro/disclosures `UNAVAILABLE` |
 | GET | /system/sources, /system/data-health, /system/market-status | Source registry & capability matrix, quality dashboard, session clock |
 

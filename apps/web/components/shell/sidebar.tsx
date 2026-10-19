@@ -14,6 +14,7 @@ const NAV: { key: NavKey; href?: string; milestone?: string; glyph: string }[] =
   { key: "equities", href: "/equities", glyph: "▤" },
   { key: "funds", href: "/funds", glyph: "◫" },
   { key: "screener", href: "/screener/equities", glyph: "⊞" },
+  { key: "backtest", href: "/backtest", glyph: "↻" },
   { key: "portfolio", href: "/portfolio", glyph: "◔" },
   { key: "research", href: "/ai-research", glyph: "◇" },
   { key: "reports", href: "/reports", glyph: "▦" },

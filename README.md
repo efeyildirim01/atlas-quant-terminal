@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A full-stack research and analytics terminal for Turkish markets (BIST equities and TEFAS mutual funds):
-technical and risk analytics, portfolio accounting, multi-condition screeners, reproducible PDF reports, and an
+technical and risk analytics, strategy backtesting, portfolio accounting, multi-condition screeners, reproducible PDF reports, and an
 LLM research assistant whose numbers are checked against their sources by a deterministic verifier.
 
 **Python · FastAPI · SQLAlchemy · PostgreSQL · Redis · Next.js 15 · TypeScript · Tailwind · Playwright · Docker**
@@ -19,13 +19,18 @@ LLM research assistant whose numbers are checked against their sources by a dete
 |---|---|
 | ![Portfolio analytics](docs/screenshots/portfolio.png) | ![Market overview](docs/screenshots/dashboard.png) |
 | **Portfolio:** ledger-validated transactions, time-weighted and money-weighted returns, benchmark, risk contribution | **Market overview:** index, breadth, sector moves, movers, data-source status |
-| ![Research report](docs/screenshots/report.png) | ![Fund comparison](docs/screenshots/fund-compare.png) |
-| **Reports:** stored, reproducible documents with PDF export and a one-click "re-run and compare" check | **Funds:** comparison on a common window, rankings with eligibility rules, CSV export |
+| ![Backtesting](docs/screenshots/backtest.png) | ![Research report](docs/screenshots/report.png) |
+| **Backtesting:** next-open execution, commission and slippage, buy-and-hold benchmark, in-sample vs out-of-sample split | **Reports:** stored, reproducible documents with PDF export and a one-click "re-run and compare" check |
+| ![Fund comparison](docs/screenshots/fund-compare.png) | |
+| **Funds:** comparison on a common window, rankings with eligibility rules, CSV export | |
 
 ## Features
 
 - **Equity and fund research:** candlestick charts with SMA/EMA/Bollinger/VWAP, RSI, MACD, ADX; 52-week ranges;
   risk metrics (CAGR, volatility, Sharpe, Sortino, max drawdown, VaR/ES, beta, capture ratios) against a benchmark.
+- **Backtesting:** SMA crossover, momentum, RSI mean reversion and Donchian breakout strategies; signals on the
+  close, execution at the next open, per-side commission and slippage, buy-and-hold benchmark through the same
+  engine, and an in-sample/out-of-sample split to expose overfitting.
 - **Portfolio analytics:** transactions validated against the full ledger (no short selling or negative cash),
   FIFO realised/unrealised P&L, daily time-weighted return, XIRR, drawdown, correlation and risk contribution.
 - **Screeners:** nested AND/OR conditions over a typed field catalogue, point-in-time `as_of` evaluation,
@@ -77,6 +82,7 @@ Endpoints: [docs/api/API.md](docs/api/API.md) and the generated [OpenAPI contrac
 | LLMs invent numbers | The model may only call deterministic tools; each figure must cite `[E#]`; a parser checks every number (units, %, magnitudes, Turkish/English formats) against the cited evidence | [`app/ai/verify.py`](apps/api/app/ai/verify.py), [AI_COPILOT.md](docs/financial-methodology/AI_COPILOT.md) |
 | Deposits distort portfolio returns | Daily time-weighted return with flows applied at end of day, plus XIRR for the investor's own timing | [`analytics/portfolio.py`](apps/api/app/analytics/portfolio.py), [PORTFOLIO.md](docs/financial-methodology/PORTFOLIO.md) |
 | Look-ahead bias in research | Indicators and screens use only data known at their date; dedicated no-look-ahead tests | [`tests/test_no_lookahead.py`](apps/api/tests/test_no_lookahead.py) |
+| Backtests that cheat | Signal on the close, fill at the next open; a test shocks all future prices and asserts the past is unchanged for every strategy; planted look-ahead bugs make it fail | [`analytics/backtest.py`](apps/api/app/analytics/backtest.py), [BACKTESTING.md](docs/financial-methodology/BACKTESTING.md) |
 | Metric correctness | Reference values computed by hand plus Hypothesis property tests (e.g. beta of a levered path equals the leverage) | [`tests/test_metrics_*`](apps/api/tests) |
 | Reports that cannot be reproduced | Reports store their inputs and data snapshot; `verify` regenerates and diffs every fact | [REPORTS.md](docs/financial-methodology/REPORTS.md) |
 | Shared IP behind a proxy | Client IP from `X-Forwarded-For` only via trusted proxies, read right to left | [`core/observability.py`](apps/api/app/core/observability.py) |
@@ -86,9 +92,9 @@ Endpoints: [docs/api/API.md](docs/api/API.md) and the generated [OpenAPI contrac
 
 | Suite | Result |
 |---|---|
-| Backend: pytest (reference values, property tests, API, auth, isolation, migrations, AI verifier, backups) | 193 passed |
+| Backend: pytest (reference values, property tests, API, auth, isolation, migrations, backtester, AI verifier, backups) | 211 passed |
 | Frontend: Vitest + Testing Library, TypeScript strict | 24 passed, clean |
-| End to end: Playwright against a production build | 9 passed |
+| End to end: Playwright against a production build | 10 passed |
 | Dependency audit: `pip-audit` | no known vulnerabilities |
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the backend tests, migrations against a real

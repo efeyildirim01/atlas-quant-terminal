@@ -2231,6 +2231,72 @@
         }
       }
     },
+    "/api/v1/backtests": {
+      "post": {
+        "tags": [
+          "backtests"
+        ],
+        "summary": "Run",
+        "operationId": "run_api_v1_backtests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BacktestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/backtests/strategies": {
+      "get": {
+        "tags": [
+          "backtests"
+        ],
+        "summary": "Strategies",
+        "description": "Strategy catalogue with parameter bounds, for building forms.",
+        "operationId": "strategies_api_v1_backtests_strategies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Strategies Api V1 Backtests Strategies Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/system/sources": {
       "get": {
         "tags": [
@@ -2329,6 +2395,131 @@
   },
   "components": {
     "schemas": {
+      "BacktestIn": {
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Symbol"
+          },
+          "strategy": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BuyAndHold"
+              },
+              {
+                "$ref": "#/components/schemas/SmaCross"
+              },
+              {
+                "$ref": "#/components/schemas/RsiReversion"
+              },
+              {
+                "$ref": "#/components/schemas/Momentum"
+              },
+              {
+                "$ref": "#/components/schemas/Donchian"
+              }
+            ],
+            "title": "Strategy",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "buy_and_hold": "#/components/schemas/BuyAndHold",
+                "donchian_breakout": "#/components/schemas/Donchian",
+                "momentum": "#/components/schemas/Momentum",
+                "rsi_reversion": "#/components/schemas/RsiReversion",
+                "sma_cross": "#/components/schemas/SmaCross"
+              }
+            }
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "out_of_sample_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Out Of Sample Start",
+            "description": "Report metrics separately before and after this date"
+          },
+          "initial_capital": {
+            "type": "number",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Initial Capital",
+            "default": 100000
+          },
+          "commission_bps": {
+            "type": "number",
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Commission Bps",
+            "default": 10
+          },
+          "slippage_bps": {
+            "type": "number",
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Slippage Bps",
+            "default": 5
+          },
+          "rf": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": -0.5,
+            "title": "Rf",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "symbol",
+          "strategy"
+        ],
+        "title": "BacktestIn"
+      },
+      "BuyAndHold": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "buy_and_hold",
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "BuyAndHold"
+      },
       "CompareIn": {
         "properties": {
           "codes": {
@@ -2432,6 +2623,27 @@
           "password"
         ],
         "title": "Credentials"
+      },
+      "Donchian": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "donchian_breakout",
+            "title": "Type"
+          },
+          "window": {
+            "type": "integer",
+            "maximum": 250.0,
+            "minimum": 5.0,
+            "title": "Window",
+            "default": 55
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "Donchian"
       },
       "Envelope_dict_": {
         "properties": {
@@ -2706,6 +2918,27 @@
         ],
         "title": "IssueOut"
       },
+      "Momentum": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "momentum",
+            "title": "Type"
+          },
+          "lookback": {
+            "type": "integer",
+            "maximum": 504.0,
+            "minimum": 5.0,
+            "title": "Lookback",
+            "default": 126
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "Momentum"
+      },
       "Page_InstrumentOut_": {
         "properties": {
           "items": {
@@ -2979,6 +3212,41 @@
         ],
         "title": "RegisterIn"
       },
+      "RsiReversion": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "rsi_reversion",
+            "title": "Type"
+          },
+          "period": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 2.0,
+            "title": "Period",
+            "default": 14
+          },
+          "entry": {
+            "type": "number",
+            "exclusiveMaximum": 100.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Entry",
+            "default": 30
+          },
+          "exit": {
+            "type": "number",
+            "exclusiveMaximum": 100.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Exit",
+            "default": 55
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "RsiReversion"
+      },
       "SavedScreenIn": {
         "properties": {
           "name": {
@@ -3248,6 +3516,34 @@
           "expires_at"
         ],
         "title": "SessionOut"
+      },
+      "SmaCross": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "sma_cross",
+            "title": "Type"
+          },
+          "fast": {
+            "type": "integer",
+            "maximum": 250.0,
+            "minimum": 2.0,
+            "title": "Fast",
+            "default": 20
+          },
+          "slow": {
+            "type": "integer",
+            "maximum": 400.0,
+            "minimum": 3.0,
+            "title": "Slow",
+            "default": 50
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "SmaCross"
       },
       "Sort": {
         "properties": {

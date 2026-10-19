@@ -240,3 +240,37 @@ test("AI research: sign-in gate, then clear setup state when no Anthropic creden
   await expect(page.getByTestId("ai-not-configured")).toContainText("ANTHROPIC_API_KEY");
   await expect(page.getByText("calculate_risk_metrics")).toBeVisible();
 });
+
+test("backtest: default run → change strategy and costs → out-of-sample split and trades", async ({ page }) => {
+  await page.goto("/dashboard");
+  await page.getByRole("link", { name: /Backtesting/ }).first().click();
+  await expect(page).toHaveURL(/\/backtest$/);
+  const metrics = page.getByTestId("backtest-metrics");
+  await expect(metrics).toContainText("Sharpe"); // default SMA crossover runs on load
+  await expect(page.getByTestId("backtest-segments")).toContainText("Out-of-sample");
+
+  const form = page.getByRole("form", { name: "Backtest setup" });
+  await form.getByLabel("Strategy").selectOption("donchian_breakout");
+  await form.getByLabel("Channel (days)").fill("20");
+  await form.getByLabel("Commission").fill("0");
+  await form.getByLabel("Slippage").fill("0");
+  await Promise.all([
+    page.waitForResponse((r) => r.url().endsWith("/api/v1/backtests") && r.status() === 200),
+    form.getByRole("button", { name: "Run backtest" }).click(),
+  ]);
+  await expect(page.getByTestId("backtest-results")).not.toHaveClass(/opacity-60/);
+  await expect(page.getByTestId("backtest-trades").locator("tbody tr").first()).toBeVisible();
+  // With zero costs the "Costs paid" row is 0 for both columns.
+  await expect(metrics.getByRole("row", { name: /Costs paid/ })).toHaveText(/Costs paid\s*0\s*0/);
+  // Every trade executes on a later date than its signal.
+  const rows = await page.getByTestId("backtest-trades").locator("tbody tr").evaluateAll((trs) =>
+    trs.map((tr) => [...tr.querySelectorAll("td")].slice(0, 2).map((td) => td.textContent ?? "")));
+  expect(rows.length).toBeGreaterThan(0);
+  for (const [signal, executed] of rows) expect(executed > signal).toBe(true);
+
+  await form.getByLabel("Strategy").selectOption("sma_cross");
+  await form.getByLabel("Fast SMA").fill("60");
+  await form.getByLabel("Slow SMA").fill("20");
+  await form.getByRole("button", { name: "Run backtest" }).click();
+  await expect(page.getByRole("alert").or(page.getByText(/fast must be shorter/))).toBeVisible();
+});
