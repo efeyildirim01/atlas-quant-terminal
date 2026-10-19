@@ -1,0 +1,62 @@
+/* Explicit sources only. Automatic detection scans from the process cwd and (outside a git repo) ignores .gitignore,
+   so it read build output (.next/, test-results/) and binary files: that caused CSS errors and an endless Fast Refresh loop. */
+@import "tailwindcss" source(none);
+@source "../app";
+@source "../components";
+@source "../features";
+@source "../hooks";
+@source "../lib";
+
+/* Design tokens (docs/architecture/DESIGN_SYSTEM.md). Colour never carries meaning alone:
+   price direction is also shown with ▲/▼ glyphs and explicit +/− signs. */
+@theme {
+  --color-bg: #080d16;
+  --color-bg-2: #101827;
+  --color-panel: #151f30;
+  --color-line: #263247;
+  --color-fg: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-faint: #64748b;
+  --color-accent: #4f8cff;
+  --color-up: #22c55e;
+  --color-down: #ef4444;
+  --color-warn: #f59e0b;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jbmono), ui-monospace, SFMono-Regular, monospace;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  font-feature-settings: "tnum" 1, "cv11" 1;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 4px;
+}
+
+/* Sidebar link loading indicator (components/shell/sidebar.tsx): invisible during the 120 ms delay, then pulses. */
+@keyframes nav-pending {
+  0% { opacity: 0.25; }
+  50% { opacity: 1; }
+  100% { opacity: 0.25; }
+}
