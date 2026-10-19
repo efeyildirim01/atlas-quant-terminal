@@ -1,0 +1,37 @@
+[project]
+name = "atlas-api"
+version = "0.2.0"
+description = "ATLAS QUANT TERMINAL — research & analytics API (not investment advice)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.143.2",
+    "starlette==1.8.0",
+    "uvicorn[standard]==0.34.2",
+    "pydantic==2.11.4",
+    "sqlalchemy==2.0.41",
+    "alembic==1.16.1",
+    "psycopg[binary]==3.2.9",
+    "numpy==2.2.5",
+    "pandas==2.2.3",
+    "httpx==0.28.1",
+    "matplotlib==3.10.3",
+    "fpdf2==2.8.3",
+    "anthropic==1.15.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.0.3", "hypothesis==6.131.15"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: hits real external services; requires credentials (deselected by default)"]
+addopts = "-m 'not live' -p no:cacheprovider"
+# Third-party only: matplotlib still calls pyparsing's camelCase API.
+filterwarnings = ["ignore:.*deprecated - use:DeprecationWarning:matplotlib.*"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
