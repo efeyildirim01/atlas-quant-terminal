@@ -1,7 +1,7 @@
 // Server-side (RSC) fetch straight to FastAPI, forwarding the user's cookies. Never imported by client components.
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const API_URL = process.env.ATLAS_API_URL ?? "http://127.0.0.1:8000";
 
@@ -17,10 +17,16 @@ export class ServerApiError extends Error {
 export async function serverApi<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
   const url = new URL(path, API_URL);
   for (const [k, v] of Object.entries(params ?? {})) if (v !== undefined && v !== "") url.searchParams.set(k, String(v));
-  const jar = await cookies();
+  const [jar, incoming] = await Promise.all([cookies(), headers()]);
+  // Pass the visitor's address chain on: without it the API sees every server render as coming from this server,
+  // and all visitors share one rate-limit bucket. The API honours it only from trusted proxies (ATLAS_TRUSTED_PROXIES).
+  const forwarded = incoming.get("x-forwarded-for");
   let res: Response;
   try {
-    res = await fetch(url, { cache: "no-store", headers: { cookie: jar.toString() } });
+    res = await fetch(url, {
+      cache: "no-store",
+      headers: { cookie: jar.toString(), ...(forwarded ? { "x-forwarded-for": forwarded } : {}) },
+    });
   } catch {
     throw new ServerApiError(0, `Cannot reach the ATLAS API at ${API_URL}.`);
   }

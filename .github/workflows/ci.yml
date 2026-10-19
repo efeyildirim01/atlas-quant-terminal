@@ -97,7 +97,7 @@ jobs:
       - name: Smoke test
         run: |
           docker run -d --name demo -p 10000:10000 -e ATLAS_AI_ENABLED=false atlas-demo
-          npx wait-on@8.0.1 --timeout 180000 http-get://localhost:10000/dashboard
+          npx wait-on@8.0.1 --interval 2000 --timeout 180000 http-get://localhost:10000/dashboard
           curl -fsS localhost:10000/dashboard | grep -q "Market Overview"
           curl -fsS -X POST localhost:10000/api/v1/backtests -H 'content-type: application/json' \
             -d '{"symbol":"D-BNK1","strategy":{"type":"buy_and_hold"}}' | grep -q '"is_fixture":true'
