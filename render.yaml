@@ -1,0 +1,17 @@
+# Render Blueprint for the public demo (one free web service). See docs/operations/DEMO.md.
+services:
+  - type: web
+    name: atlas-quant-terminal
+    runtime: docker
+    plan: free
+    dockerfilePath: ./infrastructure/docker/demo.Dockerfile
+    dockerContext: .
+    healthCheckPath: /dashboard
+    autoDeploy: true
+    envVars:
+      # Render's load balancer forwards from private addresses; trust X-Forwarded-For only from those.
+      - key: ATLAS_TRUSTED_PROXIES
+        value: 127.0.0.1/32,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      # No Anthropic key in the public demo; the AI page explains how to enable it locally.
+      - key: ATLAS_AI_ENABLED
+        value: "false"

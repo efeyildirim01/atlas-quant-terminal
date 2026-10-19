@@ -61,7 +61,8 @@ class Settings:
 
     @property
     def secure_cookies(self) -> bool:
-        return self.is_production
+        # The public demo is served over HTTPS but runs with fixture data and SQLite, so it is not "production".
+        return self.environment in {"production", "demo"}
 
     @property
     def expose_docs(self) -> bool:

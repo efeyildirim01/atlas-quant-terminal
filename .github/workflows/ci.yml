@@ -85,3 +85,23 @@ jobs:
             .artifacts/playwright
             apps/api/api.log
             apps/web/web.log
+
+  demo-image:
+    # Builds the single-container public demo (render.yaml) and checks it serves pages and the API.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build demo image
+        run: docker build -f infrastructure/docker/demo.Dockerfile -t atlas-demo .
+      - name: Smoke test
+        run: |
+          docker run -d --name demo -p 10000:10000 -e ATLAS_AI_ENABLED=false atlas-demo
+          npx wait-on@8.0.1 --timeout 180000 http-get://localhost:10000/dashboard
+          curl -fsS localhost:10000/dashboard | grep -q "Market Overview"
+          curl -fsS -X POST localhost:10000/api/v1/backtests -H 'content-type: application/json' \
+            -d '{"symbol":"D-BNK1","strategy":{"type":"buy_and_hold"}}' | grep -q '"is_fixture":true'
+          curl -fsS localhost:10000/api/v1/research/status | grep -q '"enabled":false'
+          docker stats --no-stream demo
+      - if: failure()
+        run: docker logs demo

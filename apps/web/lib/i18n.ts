@@ -101,7 +101,9 @@ const en = {
     newThread: "New thread", evidence: "Evidence", tools: "Available tools", verification: "Verification",
     figuresVerified: "figures verified against cited evidence", refused: "The model declined to answer this request.",
     notConfigured: "AI assistant not configured",
-    setupIntro: "The assistant needs Anthropic API credentials on the API server. Set the key for the API process, then restart it (close the ATLAS API window and run baslat.cmd again):",
+    setupIntro: "The assistant needs Anthropic API credentials on the API server. Set the key for the API process and restart it (on Windows: close the ATLAS API window and run baslat.cmd again):",
+    disabled: "AI assistant disabled in this demo",
+    disabledIntro: "The public demo runs without an Anthropic API key, because every question is a paid model call. The tool layer, citation checks and numeric verifier are in the code and tests; to try it, run the project locally with a key:",
     signInRequired: "Sign in to use the AI research assistant. Questions, evidence and answers are stored privately in your account for audit.",
   },
 };
@@ -204,7 +206,9 @@ const tr: Dict = {
     newThread: "Yeni konu", evidence: "Kanıtlar", tools: "Kullanılabilir araçlar", verification: "Doğrulama",
     figuresVerified: "rakam atıf yapılan kanıtla doğrulandı", refused: "Model bu isteği yanıtlamayı reddetti.",
     notConfigured: "YZ asistanı yapılandırılmamış",
-    setupIntro: "Asistanın API sunucusunda Anthropic API kimlik bilgilerine ihtiyacı var. Anahtarı API süreci için tanımlayın ve yeniden başlatın (ATLAS API penceresini kapatıp baslat.cmd'yi tekrar çalıştırın):",
+    setupIntro: "Asistanın API sunucusunda Anthropic API kimlik bilgilerine ihtiyacı var. Anahtarı API süreci için tanımlayın ve yeniden başlatın (Windows'ta: ATLAS API penceresini kapatıp baslat.cmd'yi tekrar çalıştırın):",
+    disabled: "YZ asistanı bu demoda kapalı",
+    disabledIntro: "Herkese açık demo Anthropic API anahtarı olmadan çalışır, çünkü her soru ücretli bir model çağrısıdır. Araç katmanı, atıf kontrolleri ve sayı doğrulayıcı kodda ve testlerde mevcut; denemek için projeyi bir anahtarla yerelde çalıştırın:",
     signInRequired: "YZ araştırma asistanını kullanmak için giriş yapın. Sorular, kanıtlar ve yanıtlar denetim için hesabınızda gizli olarak saklanır.",
   },
 };

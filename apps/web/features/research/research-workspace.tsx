@@ -73,8 +73,9 @@ export function ResearchWorkspace({ status }: { status: Status }) {
     return (
       <div className="grid max-w-3xl gap-3 p-4">
         <h1 className="text-lg font-semibold tracking-tight">{t.nav.research}</h1>
-        <Panel title={t.research.notConfigured}>
+        <Panel title={status.enabled ? t.research.notConfigured : t.research.disabled}>
           <div className="space-y-2 p-4 text-[12.5px]" data-testid="ai-not-configured">
+            {!status.enabled && <p className="text-fg">{t.research.disabledIntro}</p>}
             <p>{t.research.setupIntro}</p>
             <pre className="num overflow-x-auto rounded bg-bg-2 p-2 text-[12px] text-fg">setx ANTHROPIC_API_KEY "sk-ant-..."</pre>
             <p className="text-muted">{status.setup}</p>

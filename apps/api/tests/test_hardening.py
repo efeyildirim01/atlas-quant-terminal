@@ -276,3 +276,12 @@ def test_production_app_hardening(tmp_path):
     assert c.get("/api/docs").status_code == 404 and c.get("/api/openapi.json").status_code == 404
     assert c.get("/ready").status_code == 503  # unversioned schema is not acceptable in production
     assert c.get("/metrics").status_code == 401
+
+
+def test_demo_mode_uses_secure_cookies_but_is_not_production(tmp_path):
+    c = TestClient(app_for(tmp_path, environment="demo"))
+    r = c.post("/api/v1/auth/register", json={"email": "demo@example.com", "password": PASSWORD})
+    assert r.status_code == 201
+    assert all("secure" in v.lower() for v in r.headers.get_list("set-cookie"))
+    assert "strict-transport-security" not in r.headers  # HSTS stays a production decision
+    assert c.get("/api/docs").status_code == 200  # reviewers can browse the API in the demo
