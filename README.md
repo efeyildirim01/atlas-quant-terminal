@@ -9,6 +9,10 @@ LLM research assistant whose numbers are checked against their sources by a dete
 
 **Python · FastAPI · SQLAlchemy · PostgreSQL · Redis · Next.js 15 · TypeScript · Tailwind · Playwright · Docker**
 
+**Live demo: https://atlas-quant-terminal.onrender.com** · register with any e-mail address to try portfolios and
+reports. It runs on a free plan: the first visit after a quiet period can take about a minute while the service
+starts, and accounts reset on restart ([details](docs/operations/DEMO.md)).
+
 > **Research use only. Not investment advice. No order execution.**
 > All market data in this repository is **synthetic fixture data** (symbols `D-…`), generated locally and labelled
 > as such on every screen and API response. Licensed BIST/TEFAS feeds plug in through the provider interface.

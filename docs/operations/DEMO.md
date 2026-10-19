@@ -25,3 +25,5 @@ smoke-tests it on every push (`demo-image` job).
 3. Wait for the first deploy (about 5–10 minutes). The URL is shown on the service page.
 
 Later pushes to `main` redeploy automatically (`autoDeploy: true`).
+
+Live URL: https://atlas-quant-terminal.onrender.com (first deployed 2026-10-19).
