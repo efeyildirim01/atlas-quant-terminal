@@ -39,3 +39,12 @@ def test_postgres_ddl_renders_offline():
     sql = buf.getvalue()
     assert sql.count("CREATE TABLE") == 20  # 19 tables + alembic_version
     assert "TIMESTAMP WITH TIME ZONE" in sql and "NUMERIC(24, 8)" in sql
+
+
+def test_sqlite_folder_is_created_on_a_fresh_checkout(tmp_path):
+    from app.core.db import Database
+
+    url = f"sqlite:///{(tmp_path / 'not' / 'yet' / 'there.db').as_posix()}"
+    with Database(url).engine.connect() as c:
+        assert c.exec_driver_sql("select 1").scalar() == 1
+    assert (tmp_path / "not" / "yet" / "there.db").exists()

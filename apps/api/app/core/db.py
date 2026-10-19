@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from datetime import datetime, timezone
+from pathlib import Path
 
 from sqlalchemy import DateTime, MetaData, Numeric, create_engine, event
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.types import TypeDecorator
 
@@ -50,8 +51,18 @@ def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def ensure_sqlite_dir(url: str) -> None:
+    """Create the folder of a file-based SQLite URL (a fresh clone has no apps/api/var/)."""
+    if not url.startswith("sqlite"):
+        return
+    path = make_url(url).database
+    if path and path != ":memory:" and not path.startswith("file:"):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+
 def make_engine(url: str) -> Engine:
     kwargs: dict = {"future": True, "pool_pre_ping": True}
+    ensure_sqlite_dir(url)
     if url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False}
     engine = create_engine(url, **kwargs)
