@@ -1,5 +1,8 @@
 # ATLAS Quant Terminal
 
+[![CI](https://github.com/efeyildirim01/atlas-quant-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/efeyildirim01/atlas-quant-terminal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A full-stack research and analytics terminal for Turkish markets (BIST equities and TEFAS mutual funds):
 technical and risk analytics, portfolio accounting, multi-condition screeners, reproducible PDF reports, and an
 LLM research assistant whose numbers are checked against their sources by a deterministic verifier.
