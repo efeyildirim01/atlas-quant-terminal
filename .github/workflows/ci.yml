@@ -11,6 +11,7 @@ permissions:
 jobs:
   api:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults: { run: { working-directory: apps/api } }
     services:
       postgres:
@@ -34,6 +35,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults: { run: { working-directory: apps/web } }
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +49,7 @@ jobs:
   e2e:
     needs: [api, web]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,6 +58,8 @@ jobs:
         with: { node-version: "22", cache: npm, cache-dependency-path: apps/web/package-lock.json }
       - name: API with fixture data
         working-directory: apps/api
+        # The suite signs up a fresh account per test, all from one IP: lift the 10/min sign-in limit for CI only.
+        env: { ATLAS_AUTH_RATE_LIMIT_PER_MIN: "1000", ATLAS_LOG_JSON: "false" }
         run: |
           pip install -e .
           alembic upgrade head
@@ -67,10 +72,16 @@ jobs:
           npx playwright install --with-deps chromium
           npm run build
           nohup npm start > web.log 2>&1 &
-          npx wait-on@8.0.1 http://localhost:3000/dashboard http://127.0.0.1:8000/ready
+          # http-get: wait-on sends HEAD by default, which GET-only endpoints answer with 405 (it then waits forever).
+          npx wait-on@8.0.1 --timeout 120000 http-get://localhost:3000/dashboard http-get://127.0.0.1:8000/ready
       - name: Playwright
         working-directory: apps/web
         run: npm run test:e2e
       - if: failure()
         uses: actions/upload-artifact@v4
-        with: { name: playwright-traces, path: .artifacts/playwright }
+        with:
+          name: playwright-traces-and-logs
+          path: |
+            .artifacts/playwright
+            apps/api/api.log
+            apps/web/web.log
