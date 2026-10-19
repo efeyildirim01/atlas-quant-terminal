@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/api } }
+    services:
+      postgres:
+        image: timescale/timescaledb:2.17.2-pg16
+        env: { POSTGRES_USER: atlas, POSTGRES_PASSWORD: atlas, POSTGRES_DB: atlas }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U atlas" --health-interval 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+      - name: Migrations against real PostgreSQL
+        env: { ATLAS_DATABASE_URL: "postgresql+psycopg://atlas:atlas@localhost:5432/atlas" }
+        run: |
+          alembic upgrade head
+          alembic check
+          python -m app.workers.cli ingest
+          alembic downgrade base
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  e2e:
+    needs: [api, web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - name: API with fixture data
+        working-directory: apps/api
+        run: |
+          pip install -e .
+          alembic upgrade head
+          python -m app.workers.cli ingest
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8000 > api.log 2>&1 &
+      - name: Web (production build)
+        working-directory: apps/web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run build
+          nohup npm start > web.log 2>&1 &
+          npx wait-on@8.0.1 http://localhost:3000/dashboard http://127.0.0.1:8000/ready
+      - name: Playwright
+        working-directory: apps/web
+        run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: playwright-traces, path: .artifacts/playwright }
