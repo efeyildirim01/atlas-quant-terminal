@@ -1,0 +1,13 @@
+# Prometheus scrape config for the ATLAS API. NOT YET EXECUTED here (no Prometheus on this machine).
+# The token must match ATLAS_METRICS_TOKEN; keep it in a file readable only by Prometheus.
+global:
+  scrape_interval: 30s
+rule_files: [alerts.yml]
+scrape_configs:
+  - job_name: atlas-api
+    metrics_path: /metrics
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/atlas_metrics_token
+    static_configs:
+      - targets: ["api:8000"]

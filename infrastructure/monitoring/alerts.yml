@@ -1,0 +1,36 @@
+# Alert rules for the metrics in docs/operations/RUNBOOK.md. Thresholds are starting points, not tuned on traffic.
+groups:
+  - name: atlas
+    rules:
+      - alert: AtlasApiDown
+        expr: up{job="atlas-api"} == 0
+        for: 2m
+        labels: { severity: page }
+        annotations: { summary: "ATLAS API is not answering /metrics" }
+      - alert: AtlasHigh5xxRate
+        expr: sum(rate(atlas_http_errors_total[5m])) / clamp_min(sum(rate(atlas_http_requests_total[5m])), 1e-9) > 0.02
+        for: 10m
+        labels: { severity: page }
+        annotations: { summary: "More than 2% of API requests fail with 5xx" }
+      - alert: AtlasSlowRequests
+        expr: histogram_quantile(0.95, sum by (le) (rate(atlas_http_request_duration_seconds_bucket{route!~"/api/v1/research/query|/api/v1/reports/.*"}[10m]))) > 1
+        for: 15m
+        labels: { severity: ticket }
+        annotations: { summary: "p95 latency above 1 s (excluding AI and report generation)" }
+      - alert: AtlasDataStale
+        expr: atlas_data_max_lag_business_days > 3
+        for: 1h
+        labels: { severity: ticket }
+        annotations: { summary: "At least one stored series is more than 3 business days old" }
+      - alert: AtlasRateLimitBackendErrors
+        expr: increase(atlas_ratelimit_backend_errors_total[10m]) > 0
+        labels: { severity: ticket }
+        annotations: { summary: "Redis unreachable: rate limits are per process" }
+      - alert: AtlasLoginLockouts
+        expr: increase(atlas_login_failures_total{outcome="locked"}[15m]) > 20
+        labels: { severity: ticket }
+        annotations: { summary: "Many locked sign-in attempts (credential stuffing?)" }
+      - alert: AtlasAiUpstreamErrors
+        expr: increase(atlas_ai_queries_total{result=~"upstream_.*|not_configured"}[30m]) > 5
+        labels: { severity: ticket }
+        annotations: { summary: "AI research queries failing (credentials, rate limits or upstream outage)" }
